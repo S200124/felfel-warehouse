@@ -16,8 +16,6 @@ namespace FelfelWarehouse.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Use Fluent API to configure  
-
             // Map entities to tables  
             modelBuilder.Entity<User>().ToTable("users");
 
@@ -29,7 +27,7 @@ namespace FelfelWarehouse.Models
             modelBuilder.Entity<User>().Property(u => u.LastName).HasColumnType("nvarchar(50)").IsRequired();
             modelBuilder.Entity<User>().Property(u => u.UserGroupId).HasColumnType("int").IsRequired();
             modelBuilder.Entity<User>().Property(u => u.CreationDateTime).HasColumnType("datetime").IsRequired();
-            modelBuilder.Entity<User>().Property(u => u.LastUpdateDateTime).HasColumnType("datetime").IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.LastUpdateDateTime).HasColumnType("datetime").IsRequired();
         }
     }
 }
