@@ -1,13 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using FelfelWarehouse.Configurations;
+using Microsoft.EntityFrameworkCore;
 
 namespace FelfelWarehouse.Models
 {
     public class MyDBContext : DbContext
     {
+        public DbSet<Batch> Batches { get; set; }
+        public DbSet<Movement> Movements { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<User> Users { get; set; }
 
         public MyDBContext(DbContextOptions<MyDBContext> options) : base(options)
@@ -16,18 +16,10 @@ namespace FelfelWarehouse.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Map entities to tables  
-            modelBuilder.Entity<User>().ToTable("users");
-
-            // Configure Primary Keys  
-            modelBuilder.Entity<User>().HasKey(u => u.Id).HasName("PK_Users");
-
-            modelBuilder.Entity<User>().Property(u => u.Id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
-            modelBuilder.Entity<User>().Property(u => u.FirstName).HasColumnType("nvarchar(50)").IsRequired();
-            modelBuilder.Entity<User>().Property(u => u.LastName).HasColumnType("nvarchar(50)").IsRequired();
-            modelBuilder.Entity<User>().Property(u => u.UserGroupId).HasColumnType("int").IsRequired();
-            modelBuilder.Entity<User>().Property(u => u.CreationDateTime).HasColumnType("datetime").IsRequired();
-            modelBuilder.Entity<User>().Property(u => u.LastUpdateDateTime).HasColumnType("datetime").IsRequired();
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new BatchConfiguration());
+            modelBuilder.ApplyConfiguration(new MovementConfiguration());
         }
     }
 }

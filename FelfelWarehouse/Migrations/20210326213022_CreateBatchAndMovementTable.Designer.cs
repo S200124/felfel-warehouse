@@ -4,14 +4,16 @@ using FelfelWarehouse.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FelfelWarehouse.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    partial class MyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210326213022_CreateBatchAndMovementTable")]
+    partial class CreateBatchAndMovementTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,7 +30,7 @@ namespace FelfelWarehouse.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValue(new DateTime(2021, 3, 26, 22, 30, 22, 162, DateTimeKind.Local).AddTicks(2456));
 
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime");
@@ -42,7 +44,7 @@ namespace FelfelWarehouse.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValue(new DateTime(2021, 3, 26, 22, 30, 22, 162, DateTimeKind.Local).AddTicks(2822));
 
                     b.HasKey("Id")
                         .HasName("PK_Batches");
@@ -68,9 +70,10 @@ namespace FelfelWarehouse.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValue(new DateTime(2021, 3, 26, 22, 30, 22, 262, DateTimeKind.Local).AddTicks(4827));
 
                     b.Property<string>("Reason")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Timestamp")
@@ -79,7 +82,7 @@ namespace FelfelWarehouse.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValue(new DateTime(2021, 3, 26, 22, 30, 22, 262, DateTimeKind.Local).AddTicks(5238));
 
                     b.HasKey("Id")
                         .HasName("PK_Movements");
@@ -99,15 +102,16 @@ namespace FelfelWarehouse.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValue(new DateTime(2021, 3, 26, 22, 30, 22, 153, DateTimeKind.Local).AddTicks(3924));
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValue(new DateTime(2021, 3, 26, 22, 30, 22, 159, DateTimeKind.Local).AddTicks(8679));
 
                     b.HasKey("Id")
                         .HasName("PK_Products");
