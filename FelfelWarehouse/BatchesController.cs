@@ -125,8 +125,8 @@ namespace FelfelWarehouse
             );
         }
 
-        [HttpGet("products")]
-        public IActionResult Products(bool byBatch = false)
+        [HttpGet("stock")]
+        public IActionResult Stock(bool byBatch = false)
         {
             var groups = db.Batches.ToList().GroupBy(x => x.ProductId);
 
