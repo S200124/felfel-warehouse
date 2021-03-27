@@ -1,10 +1,9 @@
 ﻿using FelfelWarehouse.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,41 +24,54 @@ namespace FelfelWarehouse
 
         // GET: api/<ProductsController>
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public IActionResult Get()
         {
-            return db.Set<Product>();
+            return StatusCode(StatusCodes.Status200OK, db.Products);
         }
 
         // GET api/<ProductsController>/5
         [HttpGet("{id}")]
-        public Product Get(int id)
+        public IActionResult Get(int id)
         {
-            return db.Products.Find(id);
+            return StatusCode(StatusCodes.Status200OK, db.Products.Find(id));
         }
 
         // POST api/<ProductsController>
         [HttpPost]
-        public void Post([FromBody] Product value)
+        public IActionResult Post([FromBody] Product value)
         {
-            db.Products.Add(value);
+            EntityEntry<Product> product = db.Products.Add(value);
             db.SaveChanges();
+
+            return StatusCode(StatusCodes.Status200OK, product.Entity);
         }
 
         // PUT api/<ProductsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Product value)
+        public IActionResult Put(int id, [FromBody] Product value)
         {
             Product product = db.Products.Find(id);
+            if (product == null)
+                return StatusCode(StatusCodes.Status404NotFound, new NullReferenceException("Product not found."));
+
             product.Name = value.Name;
             db.SaveChanges();
+
+            return StatusCode(StatusCodes.Status200OK, product);
         }
 
         // DELETE api/<ProductsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
-            db.Products.Remove(db.Products.Find(id));
+            Product product = db.Products.Find(id);
+            if (product == null)
+                return StatusCode(StatusCodes.Status404NotFound, new NullReferenceException("Product not found."));
+
+            db.Products.Remove(product);
             db.SaveChanges();
+
+            return StatusCode(StatusCodes.Status200OK);
         }
     }
 }

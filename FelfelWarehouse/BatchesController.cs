@@ -1,11 +1,11 @@
 ﻿using FelfelWarehouse.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,22 +25,31 @@ namespace FelfelWarehouse
         }
         // GET: api/<BatchesController>
         [HttpGet]
-        public IEnumerable<Batch> Get()
+        public IActionResult Get()
         {
-            return db.Set<Batch>();
+            return StatusCode(StatusCodes.Status200OK, db.Batches);
         }
 
         // GET api/<BatchesController>/5
         [HttpGet("{id}")]
-        public Batch Get(int id)
+        public IActionResult Get(int id)
         {
-            return db.Batches.Find(id);
+            return StatusCode(StatusCodes.Status200OK, db.Batches.Find(id));
         }
 
         // POST api/<BatchesController>
         [HttpPost]
-        public void Post([FromBody] Batch value)
+        public IActionResult Post([FromBody] Batch value)
         {
+            if (db.Products.Find(value.ProductId) == null)
+                return StatusCode(StatusCodes.Status404NotFound, new NullReferenceException("Product not found."));
+
+            if(value.Quantity <= 0)
+                return StatusCode(StatusCodes.Status500InternalServerError, new ArgumentException("Quantity cannot be null or zero."));
+
+            if (value.ExpirationDate <= DateTime.Now)
+                return StatusCode(StatusCodes.Status500InternalServerError, new ArgumentException("Expiration Date cannot be null or in the past."));
+
             EntityEntry<Batch> batch = db.Batches.Add(value);
             db.SaveChanges();
 
@@ -51,13 +60,17 @@ namespace FelfelWarehouse
             movement.Timestamp = DateTime.Now;
             db.Movements.Add(movement);
             db.SaveChanges();
+
+            return StatusCode(StatusCodes.Status200OK, batch.Entity);
         }
 
         // PUT api/<BatchesController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Batch value)
+        public IActionResult Put(int id, [FromBody] Batch value)
         {
             Batch batch = db.Batches.Find(id);
+            if (batch == null)
+                return StatusCode(StatusCodes.Status404NotFound, new NullReferenceException("Batch not found."));
 
             Movement movement = new Movement();
             movement.Amount = value.Quantity - batch.Quantity;
@@ -67,18 +80,67 @@ namespace FelfelWarehouse
             db.Movements.Add(movement);
 
             batch.ExpirationDate = value.ExpirationDate;
-            batch.ProductId = value.ProductId;
             batch.Quantity = value.Quantity;
             db.SaveChanges();
+
+            return StatusCode(StatusCodes.Status200OK, batch);
         }
 
         // DELETE api/<BatchesController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            Batch batch = db.Batches.Find(id);
+            if (batch == null)
+                return StatusCode(StatusCodes.Status404NotFound, new NullReferenceException("Batch not found."));
+
             db.RemoveRange(db.Movements.Where(m => m.BatchId == id));
-            db.Remove(db.Batches.Find(id));
+            db.Remove(batch);
             db.SaveChanges();
+
+            return StatusCode(StatusCodes.Status200OK);
+        }
+
+        [HttpGet("{id}/history")]
+        public IActionResult History(int id)
+        {
+            Batch batch = db.Batches.Find(id);
+            if(batch == null)
+                return StatusCode(StatusCodes.Status404NotFound, new NullReferenceException("Batch not found."));
+
+            IDictionary<string, object> dictionary = new Dictionary<string, object>();
+            dictionary.Add("batch", batch);
+            dictionary.Add("product", db.Products.Find(batch.ProductId));
+            dictionary.Add("movements", db.Movements.OrderBy(m => m.Timestamp).Where<Movement>(m => m.BatchId == batch.Id));
+
+            return StatusCode(StatusCodes.Status200OK, dictionary);
+        }
+
+        [HttpGet("status")]
+        public IActionResult Status()
+        {
+            return StatusCode(
+                StatusCodes.Status200OK,
+                db.Batches.ToList().GroupBy(x => x.FreshnessStatus).ToDictionary(x => x.Key, x => x.ToList().Select(x => new { x.Id, db.Products.Find(x.ProductId).Name, x.Quantity, x.ExpirationDate }))
+            );
+        }
+
+        [HttpGet("products")]
+        public IActionResult Products(bool byBatch = false)
+        {
+            var groups = db.Batches.ToList().GroupBy(x => x.ProductId);
+
+            if (byBatch)
+                return StatusCode(
+                    StatusCodes.Status200OK,
+                    groups.ToDictionary(x => db.Products.Find(x.Key).Name, x => x.ToList().Select(x => new { x.Id, x.Quantity }))
+                );
+            else
+                return StatusCode(
+                    StatusCodes.Status200OK,
+                    groups.ToDictionary(x => db.Products.Find(x.Key).Name, x => x.ToList().Sum(b => b.Quantity))
+                );
+            
         }
     }
 }
