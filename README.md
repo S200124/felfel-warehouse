@@ -19,7 +19,7 @@ A movement is an operation made on a specific batch. It has an amount (positive 
 a timestamp and a short description (reason).
 
 Permitted actions on entities:
-For all three entities, the basic CRUD actions are allowed.
+For all three entities, the basic CRUD actions are allowed through REST APIs.
 
 For batches, there are 3 additional actions:
 - History;
