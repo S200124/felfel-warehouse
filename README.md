@@ -38,7 +38,7 @@ or an object with N keys (where N is the number of products available in the bat
 === Technical Improvement ===
 At the moment, it is not implemented the authorization and the authentication parts. An OAuth2 authentication with clientId and clientSecret should be added
 for permitting the use of all REST endpoints by registered clients.
-Another improvement could be the standardization of the error messages when the actions fail.
+Other improvements could be the standardization of the error messages when the actions fail and a centralized logging system.
 
 === Next steps / ideas ===
 The next step could be to implement the orders entity. An order is a purchase of different batches made towards a supplier. Adding an order will be possible to store several
